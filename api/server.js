@@ -6,6 +6,9 @@ import cors from 'cors';
 import bcrypt from 'bcrypt';
 import User from "./models/User.js";
 import jwt from 'jsonwebtoken';
+import Comments from "./models/comments.js";
+import Board from './models/Board.js';
+import Post from './models/Post.js';
 
 const secret = 'secret123';
 
@@ -28,8 +31,9 @@ app.get('/', (req,res,next)=>{
     next();
 });
 
-app.post('/register',(req,res,)=>{
-    const{email,username}= req.body;
+app.post('/register',(req,res)=>{
+    const email= req.body.email;
+    const username = req.body.username;
     const password = bcrypt.hashSync(req.body.password,10);
     const user = new User({email,username,password});
     user.save().then(user => {
@@ -46,6 +50,62 @@ app.post('/register',(req,res,)=>{
         console.log(e);
         res.sendStatus(500);
     })
+})
+
+app.post('/comments', (req,res) => {
+    var newcomment = new Comments();
+    newcomment.user = req.body.userid;
+    newcomment.text = req.body.comment_text;
+    newcomment.postid = req.body.postid;
+    newcomment.save();
+    res.sendStatus(201).send();
+})
+
+app.get('/post-comments', async(req,res) => {
+    let postcomment = await Comments.find({postid:req.body.postid});
+    console.log(postcomment);
+    res.send(postcomment);
+})
+
+app.get('/board-details', (req,res) => {
+    let boarddetails =  Board.find({boardid:req.body.boardid});
+    console.log(boarddetails);
+    res.send(boarddetails);
+
+    var query = Board.find({postid:req.body.postid});
+    query.count(function (err, count) {
+        if (err) {
+            console.log(err)
+        }
+        else 
+        {
+            console.log("Count:", count)
+            res.send(query);
+        }
+    });
+  
+})
+
+app.post('/newpost', async(req,res) => {
+    var newpost = new Post();
+    newpost.text = req.body.text;
+    newpost.author = req.body.author;
+    newpost.title = req.body.title;
+    newpost.date = req.body.date;
+    newpost.boardid = req.body.boardid;
+    newpost.postid = req.body.postid;
+    newpost.img = req.body.img;
+
+    let result = await newpost.save();
+    console.log(result)
+    res.sendStatus(201).send(result);
+
+})
+
+app.get('/existingpost', async(req,res) => {
+    let existingpost = await Post.find({postid:req.body.postid});
+    console.log(existingpost);
+    res.send(existingpost);
 })
 
 app.get('/user', (req,res)=> {
@@ -83,5 +143,7 @@ app.post('/login', (req,res) => {
 app.post('/logout', (req,res)=> {
     res.cookie('token', '').send();
 })
+
+
 // app.listen(port, () => {console.log(port)});
 app.listen(4000);
