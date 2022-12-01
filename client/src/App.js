@@ -106,11 +106,7 @@ function App() {
   }, [])
 
   return (
-    <>
-    <div className="w-full h-full flex justify-center text-white">
-        <Navbar />
-        <Body />
-    </div>
+   
     <div className="container">
       {user ? 
         (<Hero 
@@ -131,7 +127,7 @@ function App() {
         />)
       }
     </div>
-    </>
+   
   );
 }
 
