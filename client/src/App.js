@@ -2,23 +2,6 @@ import './App.css';
 import Navbar from './Navbar.js';
 import Body from "./Body";
 
-import React, { useState, useEffect } from 'react'
-import fire from './fire'
-import './style.css';
-import Login from '../src/components/Login'
-import Hero from '../src/components/Hero'
-
-function App() {
-  return (
-    <div className="w-full h-full flex justify-center text-white">
-        <Navbar />
-        <Body />
-    </div>
-  );
-}
-
-
-
 
 import React, { useState, useEffect } from 'react'
 import fire from './fire'
