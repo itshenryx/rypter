@@ -7,13 +7,15 @@ import bcrypt from 'bcrypt';
 import User from "./models/User.js";
 import jwt from 'jsonwebtoken';
 import Comments from "./models/comments.js";
-import Board from './models/Board.js';
-import Post from './models/Post.js';
+import Board from './models/board.js';
+import Posts from './models/posts.js';
+import Likes from './models/Likes.js';
 
 const secret = 'secret123';
 
 const port = 9000;
-const url = "mongodb+srv://root:root@cluster0.ew1hmfn.mongodb.net/?retryWrites=true&w=majority";
+const url = "mongodb+srv://root:root@cluster0.ew1hmfn.mongodb.net/rypter";
+const url1 = "mongodb://localhost:27017/rypter";
 mongoose.connect(url);
 
 const app = express();
@@ -52,13 +54,21 @@ app.post('/register',(req,res)=>{
     })
 })
 
-app.post('/comments', (req,res) => {
+app.post('/comments',async (req,res) => {
     var newcomment = new Comments();
     newcomment.user = req.body.userid;
     newcomment.text = req.body.comment_text;
     newcomment.postid = req.body.postid;
-    newcomment.save();
+    console.log(newcomment)
+    // newcomment.save();
     res.sendStatus(201).send();
+    try {
+        const result = await newcomment.save();
+        return result;
+      } catch (err) {
+        console.error(err);
+        return null;
+      }
 })
 
 app.get('/post-comments', async(req,res) => {
@@ -87,7 +97,7 @@ app.get('/board-details', (req,res) => {
 })
 
 app.post('/newpost', async(req,res) => {
-    var newpost = new Post();
+    var newpost = new Posts();
     newpost.text = req.body.text;
     newpost.author = req.body.author;
     newpost.title = req.body.title;
@@ -96,14 +106,45 @@ app.post('/newpost', async(req,res) => {
     newpost.postid = req.body.postid;
     newpost.img = req.body.img;
 
-    let result = await newpost.save();
-    console.log(result)
-    res.sendStatus(201).send(result);
+    var newboard = new Board();
+    newboard.text = req.body.text;
+    newboard.title = req.body.title;
+    newboard.creationdate = req.body.date;
+    newboard.boardid = req.body.boardid;
+    newboard.postid = req.body.postid;
+
+    res.sendStatus(201).send();
+    try {
+        const result = await newboard.save();
+        console.log(newboard)
+        return result;
+      } catch (err) {
+        console.error(err);
+        return null;
+      }
+
+})
+
+app.post('/newlike', async(req,res) => {
+    var newlike = new Likes();
+    newlike.userid = req.body.userid;
+    newlike.postid = req.body.postid;
+
+    res.sendStatus(201).send();
+    try {
+        const result = await newlike.save();
+        console.log(newlike)
+        return result;
+      } catch (err) {
+        console.error(err);
+        return null;
+      }
 
 })
 
 app.get('/existingpost', async(req,res) => {
     let existingpost = await Post.find({postid:req.body.postid});
+    //let existingpost = await Posts.find({postid:req.body.postid}).populate('author','text','title','date','userid', 'comment_text');
     console.log(existingpost);
     res.send(existingpost);
 })
