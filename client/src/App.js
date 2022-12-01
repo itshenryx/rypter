@@ -106,6 +106,7 @@ function App() {
   }, [])
 
   return (
+    <>
     <div className="w-full h-full flex justify-center text-white">
         <Navbar />
         <Body />
@@ -130,6 +131,7 @@ function App() {
         />)
       }
     </div>
+    </>
   );
 }
 
